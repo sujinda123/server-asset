@@ -1,0 +1,6 @@
+{
+    "secret": "abcdefghijklmnopqrst",
+    "refreshTokenSecret": "ndatwqghijklcnopqrst",
+    "tokenLife": "5s",
+    "refreshTokenLife": 86400
+}

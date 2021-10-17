@@ -1,0 +1,10 @@
+version: "3.9"
+services:
+  myapp:
+    image: my_app/node
+    container_name: myapp
+    restart: always
+    ports:
+            - 4000:4000
+    volumes:
+      - ./graphql:/data

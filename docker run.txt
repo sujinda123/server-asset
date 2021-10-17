@@ -1,0 +1,47 @@
+
+docker run --name=mysql -e MYSQL_ROOT_PASSWORD=12345678 -e MYSQL_DATABASE=db_myapp -p 3306:3306 -d mysql
+docker exec -it ID bash
+mysql -u root -p
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '12345678';
+ALTER USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY '12345678';
+docker run --name myadmin -d --link mysql:db -p 8081:80 phpmyadmin/phpmyadmin
+
+FROM node:14.16.0-alpine
+  
+WORKDIR /server-asset
+
+ENV PATH /server-asset/node_modules/.bin:$PATH
+
+COPY package.json ./
+COPY package-lock.json ./
+RUN npm install
+
+COPY . ./
+
+CMD ["npm","start"]
+
+docker build -t server:dev .
+
+docker run -d -v ${PWD}:/server-asset -v /server-asset/node_modules -p 4000:4000 -e CHOKIDAR_USEPOLLING=true server:dev
+
+
+
+
+
+FROM node:14.16.0-alpine
+  
+WORKDIR /client-asset
+
+ENV PATH /client-asset/node_modules/.bin:$PATH
+
+COPY package.json ./
+COPY package-lock.json ./
+RUN npm install
+
+COPY . ./
+
+CMD ["npm","start"]
+
+docker build -t client:dev .
+docker run -d -v ${PWD}:/client-server-qrcode -v /client-server-qrcode/node_modules -p 3000:3000 -e CHOKIDAR_USEPOLLING=true client:dev
+

@@ -1,0 +1,269 @@
+scalar Upload
+input SearchList {
+  ASSET_CODE: String
+}
+
+# ---------------------------------------------------------------------------- Select
+type Query {
+  # me: User!
+  # login(userUsername: String!, userPwd: String!): AuthData
+  getUser(username: String): User
+  # getSearch(input: SearchList, page: Int, limit: Int): [Asset!]!
+  uploadedFiles: [File]
+  # users: [User]
+  # allUsers: [User]
+  # assets: [Asset]!
+  # statusasset(id: ID!): StatusAsset
+  # statusassets: [StatusAsset]!
+
+  # product(id: ID!): Product
+  # products: [Product]!
+}
+# the schema allows the following query:
+type File {
+  success: String!
+  message: String!
+  filename: String
+  mimetype: String
+  encoding: String
+  location: String
+}
+
+# Mutation
+type Mutation {
+  signup(
+    USER_USERNAME: String!
+    USER_FIRSTNAME: String!
+    USER_LASTNAME: String!
+    USER_PASSWORD: String!
+  ): AuthData
+  login(Username: String!, Password: String!): AuthData
+
+  updateNotification(token: String): return
+  # createStatusAsset(statusAssetName: String!): StatusAsset!
+
+  createAsset(
+    assetCode: String! # รหัสครุภัณฑ์
+    assetName: String! # ชื่อครุภัณฑ์
+    assetNumber: Int! # จำนวนครุภัณฑ์
+    assetUnit: String! # หน่วยนับ
+    assetPrice: String! # ต้นทุนต่อหน่วย
+    assetBrand: String! # ยี่ห้อ
+    assetModel: String! # โมเดล
+    assetSerialNumber: String! # หมายเลขเครื่อง
+    assetStatus: String! # สถานะ
+    assetUser: String! # ผู้รับผิดชอบ
+    assetRoom: String! # สถานที่ใช้งาน
+    assetOriginalRoom: String! # สถานที่ใช้งานเดิม
+  ): return
+
+  singleUploadLocal(file: Upload!, assetID: Int!): File
+  multipleUploadLocal(files: [Upload]!, assetID: Int!): [File]
+  updateStatusAsset(assetID: String!, assetStatus: Int!): return
+  deleteImageAsset(ImgID: Int!): return
+
+  # Edit
+  editAsset(
+    assetID: String!
+    name: String!
+    status: String!
+    username: String!
+    room: String!
+    roomOriginal: String!
+    note: String
+  ): return
+
+  addPeriod(start: Date!, end: Date!, note: String): return
+  editPeriod(periodID: Int!, start: Date!, end: Date!, note: String): return
+}
+# End Mutation
+
+type Subscription {
+  updateStatusAsset: [Asset_History_Check]
+}
+
+scalar Date
+
+# ผู้ใช้งาน
+type User {
+  USER_ID: Int!
+  USER_USERNAME: String!
+  USER_PASSWORD: String!
+  USER_FIRSTNAME: String!
+  USER_LASTNAME: String!
+  USER_PRIVILEGE: [Privilege]
+  ASSET_PRIVILEGE: [Status_Asset]
+  ASSET_HISTORY_EDIT(AssetID: String ,limit: Int, page: Int): [Asset_History_Edit]
+  ASSET_HISTORY_CHECK(AssetID: String ,limit: Int, page: Int, year: Int): [Asset_History_Check]
+  YEAR_HISTORY_CHECK: [Year]
+  USER_ASSETS: [Asset]
+  GET_ASSETS_ALL(
+    limit: Int
+    page: Int
+    assetCode: String
+    select: String
+  ): [Asset]
+  GET_NUM_ASSET: Int!
+  GET_NUM_ASSET_SEARCH(assetCode: String, select: String): Int!
+  GET_PERIOD(limit: Int, page: Int): [Period]
+  GET_NUM_PERIOD: Int!
+  ASSET_NUM_CHECK_ALL: Int!
+  ASSET_NUM_NOT_CHECK_ALL: Int!
+  ASSET_NUM_HISTORY_ALL: Int!
+  ASSET_NUM_EDIT_ALL: Int!
+  ASSET_NUM_USE_ALL: Int!
+  ASSET_NUM_DEFECTIVE_ALL: Int!
+  ASSET_NUM_DECLINE_ALL: Int!
+  ASSET_NUM_UNNECESSARY_ALL: Int!
+  ASSET_NUM_NOT_FOUND_ALL: Int!
+  USER_ASSET_NUM_CHECK: Int!
+  USER_ASSET_NUM_NOT_CHECK: Int!
+  USER_CHECK_ASSET(limit: Int, page: Int, select: String, assetCode: String): [Asset]
+  USER_NOT_CHECK_ASSET(limit: Int, page: Int, select: String, assetCode: String): [Asset]
+  UPDATE_DATE: Date!
+  CREATE_DATE: Date!
+}
+
+# สิทธิ์การเข้าถึง
+type Privilege {
+  PRIVILEGE_ID: ID!
+  PRIVILEGE_NAME: String!
+  UPDATE_DATE: Date!
+  CREATE_DATE: Date!
+}
+
+# สถานะสินทรัพย์
+type Status_Asset {
+  STATUS_ID: Int!
+  STATUS_NAME: String!
+  CREATE_DATE: Date!
+  UPDATE_DATE: Date!
+}
+
+# สาขา
+type Department {
+  id: ID!
+  departmentName: String!
+  updateBy: User!
+  createdBy: User!
+  updateAt: Date!
+  createdAt: Date!
+}
+
+# สถานที่
+type Location {
+  id: ID!
+  locationName: String!
+  updateBy: User!
+  createdBy: User!
+  updateAt: Date!
+  createdAt: Date!
+}
+
+# ห้อง
+type Room {
+  ROOM_ID: Int!
+  ROOM_NAME: String! # ชื่อห้อง
+  CREATE_DATE: Date!
+  UPDATE_DATE: Date!
+}
+
+# ครุภัณฑ์
+type Asset {
+  ASSET_ID: Int!
+  ASSET_CODE: String! # รหัสครุภัณฑ์
+  ASSET_NAME: String! # ชื่อครุภัณฑ์
+  ASSET_NUMBER: Int! # จำนวน
+  ASSET_UNIT: String!
+  ASSET_PRICE: String!
+  ASSET_BRAND: String! # ยี่ห้อ
+  ASSET_MODEL: String! # รุ่น/โมเดล
+  ASSET_SERIALNUMBER: String! # หมายเลขเครื่อง/S/N
+  ASSET_IMAGES: [Asset_Images]
+  ASSET_COUNT_IMAGES: Int!
+  ASSET_STATUS: String!
+  ASSET_ROOM: String!
+  ASSET_ORIGINAL_ROOM: String!
+  ASSET_USER: String!
+  CREATED_BY: [User]
+  UPDATE_BY: [User]
+  CREATE_DATE: Date!
+  UPDATE_DATE: Date!
+}
+
+# ประวัติ การตรวจนับ ครุภัณฑ์
+type Asset_History_Check {
+  ASSET_ID: Int!
+  ASSET_CODE: String! # รหัสครุภัณฑ์
+  ASSET_NAME: String! # ชื่อครุภัณฑ์
+  ASSET_NUMBER: Int! # จำนวน
+  ASSET_UNIT: String!
+  ASSET_PRICE: String!
+  ASSET_BRAND: String! # ยี่ห้อ
+  ASSET_MODEL: String! # รุ่น/โมเดล
+  ASSET_SERIALNUMBER: String! # หมายเลขเครื่อง/S/N
+  ASSET_STATUS: String!
+  ASSET_ROOM: String!
+  ASSET_ORIGINAL_ROOM: String!
+  ASSET_USER: String!
+  UPDATE_BY: String!
+  CREATE_DATE: Date!
+}
+
+# ประวัติ แก้ไข ครุภัณฑ์
+type Asset_History_Edit {
+  ASSET_ID: Int!
+  ASSET_CODE: String! # รหัสครุภัณฑ์
+  ASSET_NAME: String! # ชื่อครุภัณฑ์
+  ASSET_NUMBER: Int! # จำนวน
+  ASSET_UNIT: String!
+  ASSET_PRICE: String!
+  ASSET_BRAND: String! # ยี่ห้อ
+  ASSET_MODEL: String! # รุ่น/โมเดล
+  ASSET_SERIALNUMBER: String! # หมายเลขเครื่อง/S/N
+  ASSET_STATUS: String!
+  ASSET_ROOM: String!
+  ASSET_ORIGINAL_ROOM: String!
+  ASSET_USER: String!
+  UPDATE_BY: String!
+  CREATE_DATE: Date!
+  NOTE: String
+}
+
+# รูปครุภัณฑ์
+type Asset_Images {
+  IMAGE_ID: Int!
+  IMAGE: String! # ชื่อรูปภาพ
+  ASSET_ID: Int!
+  # updateBy: User!
+  # createdBy: User!
+  updateAt: Date!
+  createdAt: Date!
+}
+
+type Period {
+  PERIOD_ID: Int!
+  PERIOD_START: Date!
+  PERIOD_END: Date!
+  NOTE: String
+  UPDATE_BY: String!
+  UPDATE_DATE: Date!
+}
+
+type Year {
+  year: Int!
+}
+
+# ข้อมูลรับรองความถูกต้อง
+type AuthData {
+  # userId: ID
+  status: Boolean
+  token: String
+  refreshToken: String
+  message: String
+}
+
+type return {
+  idAsset: String
+  status: Boolean
+}
